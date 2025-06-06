@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg14    # última versión de TimescaleDB sobre Postgres 14
+    container_name: smartflow-postgres
+    environment:
+      - POSTGRES_USER=smartflow_user
+      - POSTGRES_PASSWORD=smartflow_pass
+      - POSTGRES_DB=smartflow_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data   # Persistencia de datos en tu carpeta local ./pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smartflow_user"]
+      interval: 5s
+      retries: 5
