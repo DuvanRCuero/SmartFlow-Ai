@@ -1,40 +1,75 @@
 # schemas.py
-from typing import List, Optional
-from uuid import UUID
+from pydantic import BaseModel, EmailStr
+from typing import Optional, Any, Dict, List
 from datetime import datetime
-from pydantic import BaseModel
+from uuid import UUID
 
-# ---------- Requests ----------
+# ==================== AUTH SCHEMAS ====================
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+class RegisterRequest(BaseModel):
+    email: EmailStr
+    name: str
+    password: str
+
+class UserResponse(BaseModel):
+    id: str
+    email: str
+    name: str
+
+class LoginResponse(BaseModel):
+    token: str
+    user: UserResponse
+
+# ==================== TASK SCHEMAS ====================
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    description: Optional[str] = None
+    priority: str = "medium"  # low, medium, high
+    status: str = "pending"   # pending, in_progress, completed, cancelled
+    due_date: Optional[datetime] = None
+
+class UpdateTaskRequest(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    priority: Optional[str] = None
+    status: Optional[str] = None
+    due_date: Optional[datetime] = None
+
+class TaskResponse(BaseModel):
+    id: str
+    title: str
+    description: Optional[str]
+    priority: str
+    status: str
+    due_date: Optional[datetime]
+    completed_at: Optional[datetime]
+    created_at: datetime
+    updated_at: datetime
+
+# ==================== AGENT SCHEMAS ====================
 
 class AgentRequest(BaseModel):
-    """
-    Payload que envía el cliente para que el agent lo procese. 
-    Por simplicidad, consideramos que el cliente envía una 'query' genérica
-    (p.ej. "Genera plan_steps para task X"), o bien datos estructurados.
-    """
-    user_id: UUID
-    task_id: Optional[UUID] = None
+    user_id: Optional[str] = None  # Se obtiene del token
+    task_id: Optional[str] = None
     query: Optional[str] = None
 
-# ---------- Responses ----------
-
-class PlanStepOut(BaseModel):
-    order: int
-    text: str
-
-class SuggestionOut(BaseModel):
-    message: str
-    reason: Optional[dict]
-    confidence: Optional[float]
-    suggestion_time: datetime
-
 class AgentResponse(BaseModel):
-    """
-    La respuesta del agente, podría contener plan_steps, sugerencias, 
-    o un texto libre, dependiendo del tipo de llamada.
-    Para este ejemplo, retornaremos un JSON con un campo 'result'.
-    """
-    result: dict
+    result: Dict[str, Any]
 
 class ErrorResponse(BaseModel):
     detail: str
+
+# ==================== CHAT SCHEMAS ====================
+
+class ChatMessageRequest(BaseModel):
+    message: str
+    task_id: Optional[str] = None
+    chat_history: Optional[List[dict]] = None
+
+class GeneratePlanRequest(BaseModel):
+    task_id: str

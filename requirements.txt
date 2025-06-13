@@ -1,10 +1,30 @@
-SQLAlchemy~=2.0.41
-uvicorn~=0.34.3
-fastapi~=0.115.12
-langchain~=0.3.25
-pydantic~=2.11.5
-dotenv~=0.9.9
-python-dotenv~=1.1.0
+# FastAPI y servidor
+fastapi
+uvicorn
+
+# Base de datos
+asyncpg
+sqlalchemy
+
+# Validación y esquemas
+pydantic[email]
+email-validator
+
+# Autenticación
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+
+# LangChain y AI
+langchain
+langchain-openai
 langchain-community
-psycopg2
 openai
+
+# Utilidades
+python-dotenv
+typing-extensions
+
+# Para desarrollo
+pytest
+pytest-asyncio

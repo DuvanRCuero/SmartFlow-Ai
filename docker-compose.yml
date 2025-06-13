@@ -1,6 +1,8 @@
+version: '3.8'
+
 services:
   postgres:
-    image: timescale/timescaledb:latest-pg14    # última versión de TimescaleDB sobre Postgres 14
+    image: timescale/timescaledb:latest-pg14
     container_name: smartflow-postgres
     environment:
       - POSTGRES_USER=smartflow_user
@@ -9,8 +11,38 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./pgdata:/var/lib/postgresql/data   # Persistencia de datos en tu carpeta local ./pgdata
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U smartflow_user"]
       interval: 5s
       retries: 5
+    networks:
+      - smartflow-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartflow-backend
+    environment:
+      - DATABASE_URL=postgresql://smartflow_user:smartflow_pass@postgres:5432/smartflow_db
+      - SECRET_KEY=your-secret-key-change-in-production
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - smartflow-network
+    volumes:
+      - .:/app
+    command: python main.py
+
+volumes:
+  postgres_data:
+
+networks:
+  smartflow-network:
+    driver: bridge

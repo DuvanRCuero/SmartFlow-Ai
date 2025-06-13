@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 # Cargamos las variables de entorno (.env)
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres:postgres@localhost:5432/smartflow")
+DATABASE_URL = os.getenv("DATABASE_URL")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # Creamos el engine y la Session factory
 engine = create_engine(DATABASE_URL, echo=False, pool_size=10, max_overflow=20)
